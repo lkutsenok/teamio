@@ -49,7 +49,7 @@ export default function Layout_(props) {
                     </Menu.Item>
                 </Menu>
             </Sider>
-            <Layout style={{marginLeft: 200}}>
+            <Layout style={{marginLeft: 200, minHeight: "100vh"}}>
                 <Header style={{background: '#fff', padding: 0}}/>
                 <Content style={{margin: '24px 16px 0', overflow: 'initial'}}>
                     <div style={{padding: 24, background: '#fff', textAlign: 'center'}}>

@@ -1,0 +1,111 @@
+# This file was generated based on ".graphqlconfig". Do not edit manually.
+
+schema {
+    query: Query
+}
+
+type HoursPerAssignee {
+    assignee: String
+    component: String
+    hours: Float
+}
+
+type Issue {
+    _id: MongoID!
+    assignee: String
+    category: String
+    component: String
+    created: Date
+    dueDate: Date
+    epic: String
+    key: String
+    project: String
+    resolutionDate: Date
+    status: String
+    subIssues: [IssueSubIssues]
+    timeOriginalEstimate: Float
+    timeSpent: Float
+}
+
+type IssueSubIssues {
+    _id: MongoID
+    assignee: String
+    created: Date
+    dueDate: Date
+    key: String
+    resolutionDate: Date
+    status: String
+    timeOriginalEstimate: Float
+    timeSpent: Float
+}
+
+type Query {
+    hoursPerAssignee(dateEnd: Date = "2020-03-06T21:00:00.000Z", dateStart: Date = "2020-02-06T21:00:00.000Z"): [HoursPerAssignee]
+    issues(
+        #Filter by fields
+        filter: FilterFindManyIssueInput,
+        limit: Int = 1000,
+        skip: Int,
+        sort: SortFindManyIssueInput
+    ): [Issue]
+}
+
+enum SortFindManyIssueInput {
+    _ID_ASC
+    _ID_DESC
+}
+
+input FilterFindManyIssueInput {
+    AND: [FilterFindManyIssueInput!]
+    OR: [FilterFindManyIssueInput!]
+    _id: MongoID
+    _ids: [MongoID]
+    "List of *indexed* fields that can be filtered via operators."
+    _operators: OperatorsFilterFindManyIssueInput
+    assignee: String
+    category: String
+    component: String
+    created: Date
+    dueDate: Date
+    epic: String
+    key: String
+    project: String
+    resolutionDate: Date
+    status: String
+    subIssues: [IssueSubIssuesInput]
+    timeOriginalEstimate: Float
+    timeSpent: Float
+}
+
+input IssueSubIssuesInput {
+    _id: MongoID
+    assignee: String
+    created: Date
+    dueDate: Date
+    key: String
+    resolutionDate: Date
+    status: String
+    timeOriginalEstimate: Float
+    timeSpent: Float
+}
+
+"For performance reason this type contains only *indexed* fields."
+input OperatorsFilterFindManyIssueInput {
+    _id: _idOperatorsFilterFindManyIssueInput
+}
+
+input _idOperatorsFilterFindManyIssueInput {
+    gt: MongoID
+    gte: MongoID
+    in: [MongoID]
+    lt: MongoID
+    lte: MongoID
+    ne: MongoID
+    nin: [MongoID]
+}
+
+
+scalar Date
+
+"The `ID` scalar type represents a unique MongoDB identifier in collection. MongoDB by default use 12-byte ObjectId value (https://docs.mongodb.com/manual/reference/bson-types/#objectid). But MongoDB also may accepts string or integer as correct values for _id field."
+scalar MongoID

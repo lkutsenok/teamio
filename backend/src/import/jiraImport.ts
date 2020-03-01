@@ -49,7 +49,7 @@ export class JiraImport implements ImportInterface {
                 component: fields.components.length && fields.components[0].name,
                 resolutionDate: fields.resolutiondate,
                 epic: fields.customfield_10101,
-               // epicId: fields
+                // epicId: fields
                 timeOriginalEstimate: fields.timeoriginalestimate || 0,
                 timeSpent: fields.timespent || fields.resolutiondate && fields.timeoriginalestimate || 0,
                 parent: fields.parent && fields.parent.key,
@@ -87,6 +87,7 @@ export class JiraImport implements ImportInterface {
             }
         });
         let issuesArray: Issue[] = Object.values(issues);
+        IssueModel.deleteMany({}).exec();
         if (issuesArray.length) await IssueModel.insertMany(issuesArray);
         return issues;
     }

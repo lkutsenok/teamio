@@ -1,0 +1,15 @@
+{
+  "projects": {
+    "marketplace_frontend": {
+      "schemaPath": "schema.graphql",
+      "extensions": {
+        "endpoints": {
+          "default": {
+            "url": "http://localhost:5500/graphql",
+            "introspect": true
+          }
+        }
+      }
+    }
+  }
+}
