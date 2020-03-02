@@ -10,6 +10,16 @@ type HoursPerAssignee {
     hours: Float
 }
 
+type HoursPerAssigneeChart {
+    hours: [HoursPerAssigneeChartHours]
+    labels: [String]
+}
+
+type HoursPerAssigneeChartHours {
+    data: [Float]
+    label: String
+}
+
 type Issue {
     _id: MongoID!
     assignee: String
@@ -41,6 +51,7 @@ type IssueSubIssues {
 
 type Query {
     hoursPerAssignee(dateEnd: Date = "2020-03-06T21:00:00.000Z", dateStart: Date = "2020-02-06T21:00:00.000Z"): [HoursPerAssignee]
+    hoursPerAssigneeChart(dateEnd: Date = "2020-03-06T21:00:00.000Z", dateStart: Date = "2020-02-06T21:00:00.000Z"): HoursPerAssigneeChart
     issues(
         #Filter by fields
         filter: FilterFindManyIssueInput,

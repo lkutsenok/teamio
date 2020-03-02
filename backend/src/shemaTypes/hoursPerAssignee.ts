@@ -1,5 +1,5 @@
 import {schemaComposer} from "graphql-compose";
-import {getStartOfCurrentMonth} from "../helpers/monthHelper";
+import {getStartOfCurrentMonth, getStartOfNextMonth} from "../helpers/monthHelper";
 import {MONTH_START_DAY} from "../config";
 import {hoursPerAssignee} from "../requests/hoursPerAssignee";
 
@@ -22,11 +22,12 @@ HoursPerAssigneeTC.addResolver({
         },
         dateEnd: {
             type: "Date",
-            defaultValue: getStartOfCurrentMonth().add(1, 'month').startOf("month").add(MONTH_START_DAY, 'days').toDate(),
+            defaultValue: getStartOfNextMonth().toDate(),
         }
     },
     type: [HoursPerAssigneeTC],
     resolve: async ({args, context}) => {
+        console.log(args.dateStart, args.dateEnd);
         return await hoursPerAssignee(args.dateStart, args.dateEnd)
     }
 });

@@ -1,5 +1,5 @@
 import moment from "moment";
-import {MONTH_START_DAY} from "../config";
+import {MONTH_START_DAY} from "../config/config";
 
 export function getStartOfCurrentMonth() {
     if (moment().diff(moment().startOf('month').add(MONTH_START_DAY - 1, "days")) >= 0) {

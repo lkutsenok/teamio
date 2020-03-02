@@ -1,6 +1,6 @@
 import moment from "moment";
 import {IssueModel} from "../models/Issue";
-import {getStartOfCurrentMonth} from "../helpers/monthHelper"
+import {getStartOfCurrentMonth, getStartOfNextMonth} from "../helpers/monthHelper"
 import {MONTH_START_DAY} from "../config";
 
 export default function monthTotalStatistic(component: String | undefined): Promise<number> {
@@ -62,7 +62,7 @@ export default function monthTotalStatistic(component: String | undefined): Prom
                 $match: {
                     resolutionDate: {
                         $gte: getStartOfCurrentMonth().toDate(),
-                        $lt: getStartOfCurrentMonth().add(1, 'month').startOf("month").add(MONTH_START_DAY, 'days').toDate(),
+                        $lt: getStartOfNextMonth().toDate(),
                         $ne: null
                     },
                     assignee: {

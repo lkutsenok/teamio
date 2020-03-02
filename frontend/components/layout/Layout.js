@@ -52,11 +52,9 @@ export default function Layout_(props) {
             <Layout style={{marginLeft: 200, minHeight: "100vh"}}>
                 <Header style={{background: '#fff', padding: 0}}/>
                 <Content style={{margin: '24px 16px 0', overflow: 'initial'}}>
-                    <div style={{padding: 24, background: '#fff', textAlign: 'center'}}>
                         {props.children}
-                    </div>
                 </Content>
-                {/*<Footer style={{textAlign: 'center'}}>Ant Design ©2018 Created by Ant UED</Footer>*/}
+                <Footer/>
             </Layout>
         </Layout>
     )
