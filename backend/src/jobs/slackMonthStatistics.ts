@@ -3,6 +3,7 @@ import monthTotalStatistic from "../requests/monthTotalStatistic";
 import {SLACK_WEBHOOK_URL} from "../config";
 import moment from "moment";
 import {getStartOfCurrentMonth} from "../helpers/monthHelper";
+import {JiraImport} from "../import/jiraImport";
 
 
 export default function slackMonthTotalStatistic(): void {
