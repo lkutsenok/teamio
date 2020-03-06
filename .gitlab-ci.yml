@@ -12,8 +12,8 @@ stages:
 build_prod:
     stage: build
     script:
-        - cd backend && docker build --build-arg ARG_JIRA_LOGIN=$JIRA_LOGIN --build-arg ARG_JIRA_PASSWORD=$JIRA_PASSWORD --build-arg ARG_JIRA_URL=$JIRA_URL --build-arg ARG_SLACK_WEBHOOK_URL=$SLACK_WEBHOOK_URL --build-arg ARG_MONGODB_URL=$MONGODB_URL --build-arg ARG_MONTH_START_DAY=$MONTH_START_DAY  -t $IMAGE_TAG_BACKEND .
-        - cd frontend && export API_URL=$API_URL && export MONTH_START_DAY=$MONTH_START_DAY python3 ci.py && docker build -t $IMAGE_TAG_FRONTEND .
+        - cd backend && docker build --build-arg ARG_JIRA_LOGIN=$JIRA_LOGIN --build-arg ARG_JIRA_URL=$JIRA_URL --build-arg ARG_JIRA_PASSWORD=$JIRA_PASSWORD --build-arg ARG_JIRA_URL=$JIRA_URL --build-arg ARG_SLACK_WEBHOOK_URL=$SLACK_WEBHOOK_URL --build-arg ARG_MONGODB_URL=$MONGODB_URL --build-arg ARG_MONTH_START_DAY=$MONTH_START_DAY  -t $IMAGE_TAG_BACKEND .
+        - cd ../frontend && export API_URL=$API_URL && export MONTH_START_DAY=$MONTH_START_DAY && python ci.py && docker build -t $IMAGE_TAG_FRONTEND .
     only:
         - master
 push_prod:
@@ -30,4 +30,3 @@ deploy_prod:
         - kubectl set image deployment.v1.apps/$DEPLOYMENT_NAME_FRONTEND $DEPLOYMENT_NAME_FRONTEND=$IMAGE_TAG_FRONTEND --namespace=$CLUSTER_NAMESPACE
     only:
         - master
- 
