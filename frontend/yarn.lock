@@ -7780,6 +7780,11 @@ wcwidth@^1.0.1:
   dependencies:
     defaults "^1.0.3"
 
+webdatarocks@^1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/webdatarocks/-/webdatarocks-1.2.0.tgz#cdd8d64a14391861a4ab6391fd0fc3cdc2b22e49"
+  integrity sha512-1TNOjnBY+ttfi/6Aev50VKwH/PnIErsxpmdZOQHfD8OJl+4grIeVNpLFbwbJVup6nqsiK+SzM3olmdWrjz6/gQ==
+
 webpack-dev-middleware@3.7.0:
   version "3.7.0"
   resolved "https://registry.yarnpkg.com/webpack-dev-middleware/-/webpack-dev-middleware-3.7.0.tgz#ef751d25f4e9a5c8a35da600c5fda3582b5c6cff"

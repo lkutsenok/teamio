@@ -1,14 +1,18 @@
-import React, {useState, useMemo} from 'react'
+import React, {useState, useMemo, useRef} from 'react'
 import {Card, Row, Col, DatePicker, Input, Form, Button} from "antd";
-import Layout from "../components/layout/Layout";
-import PivotTableUI from 'react-pivottable/PivotTableUI';
-import {aggregators} from 'react-pivottable/Utilities';
+import moment from 'moment';
+import dynamic from 'next/dynamic';
+// import PivotTableUI from 'react-pivottable/PivotTableUI';
+// import {aggregators} from 'react-pivottable/Utilities';
 import {Bar} from 'react-chartjs-2';
 import {useQuery} from "@apollo/react-hooks";
+import {getStartOfCurrentMonth} from "../helpers/monthHelper";
+import Layout from "../components/layout/Layout";
 import {GET_HOURS_PER_ASSIGNEE} from "../graphql/getHoursPerAssignee";
 import {BAR_COLORS} from "../config/chartColors";
-import {getStartOfCurrentMonth} from "../helpers/monthHelper";
-import moment from 'moment'
+
+
+const Pivot = dynamic(() => import('../components/webDataRocks/Pivot'), {ssr: false});
 
 export default function Index() {
     const [_data, setData] = useState({});
@@ -19,9 +23,16 @@ export default function Index() {
     const datasets = useMemo(() => {
         return data ? data.hoursPerAssigneeChart.hours.map((data, i) => ({...data, ...BAR_COLORS[i]})) : []
     }, [data]);
+    const [webDataRocks, setWebDataRocks] = useState(null);
+    const onReportComplete = () => {
+        if (webDataRocks) {
+            webDataRocks.off("reportcomplete");
+            console.log(webDataRocks);
+        }
+    };
     return (
         <Layout>
-            {!error && (networkStatus === 2 || !loading ) &&
+            {!error && (networkStatus === 2 || !loading) &&
             <>
                 <Row gutter={16}>
                     <Col span={6}>
@@ -41,7 +52,9 @@ export default function Index() {
                                                             })}
                                                             format={"DD.MM.YYYY"}/>
                                 </Form.Item>
-                                <Button type="primary" block onClick={() => refetch(dateRange)}>Сохранить</Button>
+                                <Button type="primary" block
+                                        onClick={() => refetch(dateRange).then((data) => webDataRocks.updateData({data: data.data.hoursPerAssignee}))}>
+                                    Сохранить</Button>
                             </Form>
                         </Card>
                     </Col>
@@ -65,19 +78,39 @@ export default function Index() {
                     </Col>
                 </Row>
                 <Card title={"Распределение трудозатрат по заказчикам"} size="small">
-                    <PivotTableUI
-                        rows={['assignee']}
-                        cols={['component']}
-                        vals={['hours']}
-                        hiddenAttributes={['hours', '__typename']}
-                        aggregatorName="Sum"
-                        aggregators={{Sum: aggregators.Sum}}
-                        data={data.hoursPerAssignee}
-                        onChange={s => setData(s)}
-                        {..._data}
-                    />
+                    <Pivot handleMount={setWebDataRocks} toolbar={false} width="100%" reportcomplete={onReportComplete}
+                           report={{
+                               dataSource: {data: data.hoursPerAssignee},
+                               slice: {
+                                   rows: [{uniqueName: "assignee", caption: "Исполнитель"}],
+                                   columns: [{uniqueName: "component", caption: "Заказчик"}],
+                                   measures: [
+                                       {
+                                           uniqueName: "hours",
+                                           aggregation: "sum",
+                                           format: "currency"
+                                       }]
+                               },
+                               formats: [{
+                                   name: "currency",
+                                   decimalPlaces: 0,
+                               }],
+                           }}/>
+
+                    {/*<PivotTableUI*/}
+                    {/*    rows={['assignee']}*/}
+                    {/*    cols={['component']}*/}
+                    {/*    vals={['hours']}*/}
+                    {/*    hiddenAttributes={['hours', '__typename']}*/}
+                    {/*    aggregatorName="Sum"*/}
+                    {/*    aggregators={{Sum: aggregators.Sum}}*/}
+                    {/*    data={data.hoursPerAssignee}*/}
+                    {/*    onChange={s => setData(s)}*/}
+                    {/*    {..._data}*/}
+                    {/*/>*/}
                 </Card>
-            </>}
+            </>
+            }
         </Layout>
     )
 }
