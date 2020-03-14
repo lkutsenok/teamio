@@ -12,8 +12,8 @@ db.once('open', () => {
 });
 
 // var job = new CronJob('35 13 1-31/2 * *', async () => {
-var job = new CronJob('* * * * *', async () => {
-  await JiraImport.execFullImport();
-  slackMonthTotalStatistic();
-});
-job.start();
+// var job = new CronJob('* * * * *', async () => {
+//   await JiraImport.execFullImport();
+//   slackMonthTotalStatistic();
+// });
+// job.start();

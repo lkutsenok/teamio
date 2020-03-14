@@ -1,4 +1,3 @@
-import mongoose, {Schema} from "mongoose";
 import {composeWithMongoose} from 'graphql-compose-mongoose/node8';
 import {prop, getModelForClass, arrayProp} from '@typegoose/typegoose';
 
@@ -54,6 +53,5 @@ class Issue extends _Issue {
 
 const IssueModel = getModelForClass(Issue);
 const IssueTC = composeWithMongoose(IssueModel, {});
-console.log(IssueTC.get("subIssues").getInputType());
 
 export {_Issue, Issue, IssueModel, IssueTC, SubIssue};
