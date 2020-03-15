@@ -18,7 +18,7 @@ LoginTC.addResolver({
         context.req.body = args;
         try {
             const accessToken = await new Promise((resolve, reject) => passport.authenticate('local', {session: false}, (err, user) => {
-                if (err || !user) return reject('No user found');
+                if (err || !user) return reject('Invalid username or password');
                 context.req.login(user, {session: false}, (err) => {
                     if (err) reject(err);
                     resolve(sign(user.toObject(), 'secret', {expiresIn: "10h"}));
