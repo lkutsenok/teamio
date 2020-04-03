@@ -80,7 +80,7 @@ export default function monthTotalStatistic(component: String | undefined): Prom
                 }
             }
         ]).exec().then(res => {
-            resolve(res[0].total)
+            resolve(res[0] ? res[0].total : 0.0)
         }).catch(e => reject(e));
     });
 }
