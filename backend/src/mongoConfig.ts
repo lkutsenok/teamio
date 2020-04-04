@@ -18,4 +18,8 @@ var job = new CronJob('00 15 1-31/2 * *', async () => {
   await JiraImport.execFullImport();
   slackMonthTotalStatistic();
 });
+var job2 = new CronJob('*/30 * * * *', async () => {
+  await JiraImport.execFullImport();
+});
 job.start();
+job2.start();
