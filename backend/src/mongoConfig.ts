@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import {CronJob} from 'cron'
+import schedule from 'node-schedule'
 import slackMonthTotalStatistic from "./jobs/slackMonthStatistics";
 import {JiraImport} from "./import/jiraImport";
 
@@ -14,12 +14,10 @@ db.once('open', async () => {
 });
 
 // var job = new CronJob('00 15 1-31/2 * *', async () => {
-var job = new CronJob('* * * * *', async () => {
+schedule.scheduleJob('* * * * *', async () => {
     await JiraImport.execFullImport();
     slackMonthTotalStatistic();
 });
 // var job2 = new CronJob('*/30 * * * *', async () => {
 //   await JiraImport.execFullImport();
 // });
-job.start();
-// job2.start();
