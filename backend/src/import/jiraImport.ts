@@ -82,6 +82,9 @@ export class JiraImport implements ImportInterface {
                 case("PaxPeer") :
                     issue.component = "PaxPeer";
                     break;
+                case("Huse Lock") :
+                    issue.component = "HuseLock";
+                    break;
                 default:
                     issue.component = issue.component || (issue.epic && issues[issue.epic] && issues[issue.epic].component) || "Unknown";
             }

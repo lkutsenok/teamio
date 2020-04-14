@@ -13,13 +13,13 @@ db.once('open', async () => {
     slackMonthTotalStatistic();
 });
 
-var job = new CronJob('00 15 1-31/2 * *', async () => {
-// var job = new CronJob('* * * * *', async () => {
-  await JiraImport.execFullImport();
-  slackMonthTotalStatistic();
+// var job = new CronJob('00 15 1-31/2 * *', async () => {
+var job = new CronJob('* * * * *', async () => {
+    await JiraImport.execFullImport();
+    slackMonthTotalStatistic();
 });
-var job2 = new CronJob('*/30 * * * *', async () => {
-  await JiraImport.execFullImport();
-});
+// var job2 = new CronJob('*/30 * * * *', async () => {
+//   await JiraImport.execFullImport();
+// });
 job.start();
-job2.start();
+// job2.start();
