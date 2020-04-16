@@ -14,7 +14,7 @@ db.once('open', async () => {
 });
 
 // var job = new CronJob('00 15 1-31/2 * *', async () => {
-schedule.scheduleJob('* * * * *', async () => {
+schedule.scheduleJob('00 15 1-31/2 * *', async () => {
     await JiraImport.execFullImport();
     slackMonthTotalStatistic();
 });
