@@ -8,16 +8,16 @@ var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', async () => {
     console.log("🍀️Connected to MongoDB");
-    // slackMonthTotalStatistic();
-    await JiraImport.execFullImport();
-    slackMonthTotalStatistic();
 });
 
-// var job = new CronJob('00 15 1-31/2 * *', async () => {
 schedule.scheduleJob('00 15 1-31/2 * *', async () => {
     await JiraImport.execFullImport();
     slackMonthTotalStatistic();
 });
-// var job2 = new CronJob('*/30 * * * *', async () => {
-//   await JiraImport.execFullImport();
-// });
+schedule.scheduleJob('20 20 * * *', async () => {
+    await JiraImport.execFullImport();
+    slackMonthTotalStatistic();
+});
+schedule.scheduleJob('*/30 * * * *', async () => {
+  await JiraImport.execFullImport();
+});
