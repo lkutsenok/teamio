@@ -1,7 +1,7 @@
 variables:
     IMAGE_TAG_BACKEND: $CI_REGISTRY_IMAGE/backend:$CI_PIPELINE_ID
     IMAGE_TAG_FRONTEND: $CI_REGISTRY_IMAGE/frontend:$CI_PIPELINE_ID
- 
+
 before_script:
     - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $REGISTRY_URL
     - PATH=$PATH:/snap/bin
@@ -12,7 +12,7 @@ stages:
 build_prod:
     stage: build
     script:
-        - cd backend && docker build --build-arg ARG_JIRA_LOGIN=$JIRA_LOGIN --build-arg ARG_JIRA_URL=$JIRA_URL --build-arg ARG_JIRA_PASSWORD=$JIRA_PASSWORD --build-arg ARG_JIRA_URL=$JIRA_URL --build-arg ARG_SLACK_WEBHOOK_URL=$SLACK_WEBHOOK_URL --build-arg ARG_MONGODB_URL=$MONGODB_URL --build-arg ARG_MONTH_START_DAY=$MONTH_START_DAY  -t $IMAGE_TAG_BACKEND .
+        - cd backend && docker build --build-arg ARG_JIRA_LOGIN=$JIRA_LOGIN --build-arg ARG_JIRA_URL=$JIRA_URL --build-arg ARG_JIRA_PASSWORD=$JIRA_PASSWORD --build-arg ARG_JIRA_URL=$JIRA_URL --build-arg ARG_SLACK_WEBHOOK_URL=$SLACK_WEBHOOK_URL --build-arg ARG_MONGODB_URL=$MONGODB_URL --build-arg ARG_MONTH_START_DAY=$MONTH_START_DAY --build-arg ARG_SENTRY_DSN=$SENTRY_DSN -t $IMAGE_TAG_BACKEND .
         - cd ../frontend && export API_URL=$API_URL && export MONTH_START_DAY=$MONTH_START_DAY && python ci.py && docker build -t $IMAGE_TAG_FRONTEND .
     only:
         - master
