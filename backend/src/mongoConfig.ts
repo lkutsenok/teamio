@@ -14,10 +14,7 @@ schedule.scheduleJob('00 15 1-31/2 * *', async () => {
     await JiraImport.execFullImport();
     slackMonthTotalStatistic();
 });
-schedule.scheduleJob('20 20 * * *', async () => {
-    await JiraImport.execFullImport();
-    slackMonthTotalStatistic();
-});
+
 schedule.scheduleJob('*/30 * * * *', async () => {
   await JiraImport.execFullImport();
 });
