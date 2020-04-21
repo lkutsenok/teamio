@@ -10,7 +10,7 @@ db.once('open', async () => {
     console.log("🍀️Connected to MongoDB");
 });
 
-schedule.scheduleJob('00 15 1-31/2 * *', async () => {
+schedule.scheduleJob('*/5 * * * *', async () => {
     await JiraImport.execFullImport();
     slackMonthTotalStatistic();
 });
