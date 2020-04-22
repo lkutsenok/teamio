@@ -15,7 +15,7 @@ export class JiraImport implements ImportInterface {
         let _projects: Project[] = []
         let _components: Component[] = []
         let components = [];
-        for(const project of projects) {
+        for (const project of projects) {
             _projects.push({
                 projectId: project.id,
                 key: project.key,
@@ -26,16 +26,16 @@ export class JiraImport implements ImportInterface {
         await ProjectModel.deleteMany({})
         await ProjectModel.insertMany(_projects)
         components = _.groupBy(components, 'name')
-        for(const component in components) {
+        for (const component in components) {
             const d: ProjectComponent[] = components[component]
             const projectRefs: Types.ObjectId[] = []
-            for(const projectComponent of d) {
+            for (const projectComponent of d) {
                 const project = await ProjectModel.findOne({projectId: projectComponent.projectId})
                 projectRefs.push(project?._id)
             }
             _components.push({
                 name: component,
-                projectComponents: d.map((t,i) => ({componentId: t.id, projectRef: projectRefs[i]}))
+                projectComponents: d.map((t, i) => ({componentId: t.id, projectRef: projectRefs[i]}))
             })
         }
         await ComponentModel.deleteMany({})
@@ -77,13 +77,13 @@ export class JiraImport implements ImportInterface {
                 id: id,
                 key: key,
                 description: fields.description,
-                project: fields.project.name,
+                project: Number(fields.project.id),
                 assignee: fields.assignee && fields.assignee.name,
                 status: fields.status && fields.status.name,
                 created: fields.created,
                 updated: fields.updated,
                 dueDate: fields.duedate,
-                component: fields.components.length && fields.components[0].name,
+                component: fields.components.length && Number(fields.components[0].id),
                 resolutionDate: fields.resolutiondate,
                 epic: fields.customfield_10101,
                 // epicId: fields
@@ -107,25 +107,29 @@ export class JiraImport implements ImportInterface {
 
         }
         subIssues.forEach((subIssue: SubIssue) => issues[subIssue.parent!].subIssues!.push(subIssue));
-        Object.values(issues).forEach((issue: Issue) => {
-            //TODO: это должно быть динамично через связи
-            switch (issue.project!) {
+        for (const issue of Object.values(issues)) {
+            const project = await ProjectModel.findOne({projectId: issue.project})
+            issue.projectRef = project?.id
+            switch (project?.name) {
                 case("MedRavel") :
-                    issue.component = "MedRavel";
+                    issue.componentRef = (await ComponentModel.findOne({name: "MedRavel"}))?.id;
                     break;
                 case("PlanSharing") :
-                    issue.component = "PlanSharing";
+                    issue.componentRef = (await ComponentModel.findOne({name: "PlanSharing"}))?.id;
                     break;
                 case("PaxPeer") :
-                    issue.component = "PaxPeer";
+                    issue.componentRef = (await ComponentModel.findOne({name: "PaxPeer"}))?.id;
                     break;
                 case("Huse Lock") :
-                    issue.component = "HuseLock";
+                    issue.componentRef = (await ComponentModel.findOne({name: "HuseLock"}))?.id;
                     break;
                 default:
-                    issue.component = issue.component || (issue.epic && issues[issue.epic] && issues[issue.epic].component) || "Unknown";
+                    issue.component = issue.component || (issue.epic && issues[issue.epic] && issues[issue.epic].component) || 0;
+                    if (issue.component !== 0) {
+                        issue.componentRef = (await ComponentModel.findOne({'projectComponents.componentId': issue.component}))?.id
+                    }
             }
-        });
+        }
         let issuesArray: Issue[] = Object.values(issues);
         IssueModel.deleteMany({}).exec();
         if (issuesArray.length) await IssueModel.insertMany(issuesArray);

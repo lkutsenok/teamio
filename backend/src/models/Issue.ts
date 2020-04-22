@@ -1,5 +1,7 @@
 import {composeWithMongoose} from 'graphql-compose-mongoose/node8';
-import {prop, getModelForClass, arrayProp} from '@typegoose/typegoose';
+import {prop, getModelForClass, arrayProp, Ref} from '@typegoose/typegoose';
+import {Project} from "./Project";
+import {Component} from "./Component";
 
 class _Issue {
     @prop()
@@ -34,14 +36,17 @@ class SubIssue extends _Issue {
 
 class Issue extends _Issue {
 
+    project?: Number
+    component?: Number
+
     @arrayProp({items: SubIssue})
     subIssues?: SubIssue[];
 
-    @prop()
-    component?: string;
+    @prop({ref: Project})
+    componentRef?: Ref<Component>
 
-    @prop()
-    project?: string;
+    @prop({ref: Project})
+    projectRef?: Ref<Project>
 
     @prop()
     epic?: string;

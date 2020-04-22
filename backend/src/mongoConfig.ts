@@ -8,6 +8,7 @@ var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', async () => {
     console.log("🍀️Connected to MongoDB");
+    // JiraImport.execFullImport()
 });
 
 schedule.scheduleJob('05 15 1-31/2 * *', async () => {

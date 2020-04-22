@@ -5,55 +5,74 @@ export async function hoursPerAssigneeChart(dateStart: Date, dateEnd: Date): Pro
         IssueModel.aggregate([
             {
                 $unwind: {
-                    path: "$subIssues",
+                    path: '$subIssues',
                     preserveNullAndEmptyArrays: true
                 }
-            },
-            {
+            }, {
+                $lookup: {
+                    from: 'components',
+                    localField: 'componentRef',
+                    foreignField: '_id',
+                    as: 'component'
+                }
+            }, {
                 $project: {
                     key: 1,
-                    component: 1,
+                    component: {
+                        $arrayElemAt: ["$component", 0]
+                    },
                     timeOriginalEstimate: {
                         $cond: {
-                            if: {
-                                $ifNull: ['$subIssues', false]
+                            'if': {
+                                $ifNull: [
+                                    '$subIssues',
+                                    false
+                                ]
                             },
-                            then: "$subIssues.timeOriginalEstimate",
-                            else: "$timeOriginalEstimate"
+                            then: '$subIssues.timeOriginalEstimate',
+                            'else': '$timeOriginalEstimate'
                         }
                     },
                     assignee: {
                         $cond: {
-                            if: {
-                                $ifNull: ['$subIssues', false]
+                            'if': {
+                                $ifNull: [
+                                    '$subIssues',
+                                    false
+                                ]
                             },
-                            then: "$subIssues.assignee",
-                            else: "$assignee"
+                            then: '$subIssues.assignee',
+                            'else': '$assignee'
                         }
                     },
                     resolutionDate: {
                         $cond: {
-                            if: {
-                                $ifNull: ['$subIssues', false]
+                            'if': {
+                                $ifNull: [
+                                    '$subIssues',
+                                    false
+                                ]
                             },
-                            then: "$subIssues.resolutionDate",
-                            else: "$resolutionDate"
+                            then: '$subIssues.resolutionDate',
+                            'else': '$resolutionDate'
                         }
-                    },
-
+                    }
                 }
-            },
-            {
+            }, {
                 $project: {
                     _id: 1,
                     key: 1,
                     component: 1,
                     assignee: 1,
-                    timeOriginalEstimate: {$divide: ["$timeOriginalEstimate", 3600]},
+                    timeOriginalEstimate: {
+                        $divide: [
+                            '$timeOriginalEstimate',
+                            3600
+                        ]
+                    },
                     resolutionDate: 1
                 }
-            },
-            {
+            }, {
                 $match: {
                     resolutionDate: {
                         $gte: dateStart,
@@ -64,68 +83,68 @@ export async function hoursPerAssigneeChart(dateStart: Date, dateEnd: Date): Pro
                         $ne: null
                     }
                 }
-            },
-            {
+            }, {
                 $group: {
                     _id: {
-                        component: "$component",
-                        assignee: "$assignee",
-
+                        component: '$component.name',
+                        assignee: '$assignee'
                     },
                     total: {
-                        '$sum': "$timeOriginalEstimate"
+                        $sum: '$timeOriginalEstimate'
                     }
                 }
-            },
-            {
+            }, {
+                $project: {
+                    component: {
+                        $ifNull: ["$_id.component", "Unknown"]
+                    },
+                    assignee: "$_id.assignee",
+                    total: 1,
+                    _id: 0
+                }
+            }, {
                 $match: {
                     total: {
                         $gt: 0
                     }
                 }
-            },
-            {
+            }, {
                 $facet: {
-                    data: [
-                        {
-                            $group: {
-                                _id: {
-                                    assignee: "$_id.assignee",
-
-                                },
-                                hours: {
-                                    $push: {
-                                        k: "$_id.component",
-                                        v: "$total"
-                                    }
-                                },
-
+                    data: [{
+                        $group: {
+                            _id: {
+                                assignee: '$assignee'
+                            },
+                            hours: {
+                                $push: {
+                                    k: '$component',
+                                    v: '$total'
+                                }
                             }
-                        },
+                        }
+                    },
                         {
                             $addFields: {
                                 hours: {
-                                    $arrayToObject: "$hours"
+                                    $arrayToObject: '$hours'
                                 }
                             }
                         },
                         {
                             $project: {
-                                assignee: "$_id.assignee",
+                                assignee: '$_id.assignee',
                                 hours: 1,
                                 _id: 0
                             }
                         }
                     ],
-                    labels: [
-                        {
-                            $group: {
-                                _id: {
-                                    component: "$_id.component",
-                                },
-
+                    labels: [{
+                        $group: {
+                            _id: {
+                                component: '$component'
                             }
-                        },
+                        }
+                    },
                         {
                             $sort: {
                                 '_id.component': 1
@@ -135,26 +154,26 @@ export async function hoursPerAssigneeChart(dateStart: Date, dateEnd: Date): Pro
                             $group: {
                                 _id: 0,
                                 components: {
-                                    $push: "$_id.component"
+                                    $push: '$_id.component'
                                 }
                             }
                         },
                         {
                             $project: {
                                 _id: 0,
-                                components: "$components"
+                                components: '$components'
                             }
-                        },
-
+                        }
                     ]
-                },
-
-            },
-            {
+                }
+            }, {
                 $project: {
-                    data: "$data",
+                    data: '$data',
                     labels: {
-                        $arrayElemAt: ["$labels.components", 0]
+                        $arrayElemAt: [
+                            '$labels.components',
+                            0
+                        ]
                     }
                 }
             }

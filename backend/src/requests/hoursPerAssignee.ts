@@ -2,58 +2,77 @@ import {IssueModel} from "../models/Issue";
 
 export async function hoursPerAssignee(dateStart: Date, dateEnd: Date): Promise<any> {
     return new Promise((resolve, reject) => {
-        IssueModel.aggregate([
-            {
+        IssueModel.aggregate(
+            [{
                 $unwind: {
-                    path: "$subIssues",
+                    path: '$subIssues',
                     preserveNullAndEmptyArrays: true
                 }
-            },
-            {
+            }, {
+                $lookup: {
+                    from: 'components',
+                    localField: 'componentRef',
+                    foreignField: '_id',
+                    as: 'component'
+                }
+            }, {
                 $project: {
                     key: 1,
-                    component: 1,
+                    component: {
+                        $arrayElemAt: ["$component", 0]
+                    },
                     timeOriginalEstimate: {
                         $cond: {
-                            if: {
-                                $ifNull: ['$subIssues', false]
+                            'if': {
+                                $ifNull: [
+                                    '$subIssues',
+                                    false
+                                ]
                             },
-                            then: "$subIssues.timeOriginalEstimate",
-                            else: "$timeOriginalEstimate"
+                            then: '$subIssues.timeOriginalEstimate',
+                            'else': '$timeOriginalEstimate'
                         }
                     },
                     assignee: {
                         $cond: {
-                            if: {
-                                $ifNull: ['$subIssues', false]
+                            'if': {
+                                $ifNull: [
+                                    '$subIssues',
+                                    false
+                                ]
                             },
-                            then: "$subIssues.assignee",
-                            else: "$assignee"
+                            then: '$subIssues.assignee',
+                            'else': '$assignee'
                         }
                     },
                     resolutionDate: {
                         $cond: {
-                            if: {
-                                $ifNull: ['$subIssues', false]
+                            'if': {
+                                $ifNull: [
+                                    '$subIssues',
+                                    false
+                                ]
                             },
-                            then: "$subIssues.resolutionDate",
-                            else: "$resolutionDate"
+                            then: '$subIssues.resolutionDate',
+                            'else': '$resolutionDate'
                         }
-                    },
-
+                    }
                 }
-            },
-            {
+            }, {
                 $project: {
                     _id: 1,
                     key: 1,
                     component: 1,
                     assignee: 1,
-                    timeOriginalEstimate: {$divide: ["$timeOriginalEstimate", 3600]},
+                    timeOriginalEstimate: {
+                        $divide: [
+                            '$timeOriginalEstimate',
+                            3600
+                        ]
+                    },
                     resolutionDate: 1
                 }
-            },
-            {
+            }, {
                 $match: {
                     resolutionDate: {
                         $gte: dateStart,
@@ -64,34 +83,29 @@ export async function hoursPerAssignee(dateStart: Date, dateEnd: Date): Promise<
                         $ne: null
                     }
                 }
-            },
-            {
+            }, {
                 $group: {
                     _id: {
-                        component: "$component",
-                        assignee: "$assignee",
-
+                        component: '$component.name',
+                        assignee: '$assignee'
                     },
                     total: {
-                        '$sum': "$timeOriginalEstimate"
+                        $sum: '$timeOriginalEstimate'
                     }
                 }
-            },
-            {
+            }, {
                 $match: {
                     total: {
                         $gt: 0
                     }
                 }
-            },
-            {
+            }, {
                 $project: {
                     _id: 0,
                     component: '$_id.component',
                     assignee: '$_id.assignee',
                     hours: '$total'
                 }
-            }
-        ]).exec().then(data => resolve(data)).catch(e => reject(e));
+            }]).exec().then(data => resolve(data)).catch(e => reject(e));
     })
 }
