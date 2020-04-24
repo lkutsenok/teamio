@@ -3,8 +3,9 @@ import {ApolloProvider} from '@apollo/react-hooks';
 import {client} from "../config/apolloConfig";
 import "antd/dist/antd.css";
 import 'react-pivottable/pivottable.css';
-import "webdatarocks/webdatarocks.css";
-import '../components/pivotTable/pivotTable.css'
+// import "webdatarocks/webdatarocks.css";
+import 'flexmonster/flexmonster.css'
+import '../components/webDataRocks/pivot.css'
 
 function App({Component, pageProps}) {
     return (

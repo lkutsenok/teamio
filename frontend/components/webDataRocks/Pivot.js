@@ -1,19 +1,16 @@
 import React from "react";
-import Webdatarocks from "webdatarocks";
+import Flexmonster from "flexmonster";
 
 export class Pivot extends React.Component {
 
 	componentDidMount() {
-		this.webdatarocks = new Webdatarocks({
+		this.webdatarocks = new Flexmonster({
 			...this.props,
-			container: this.el
+			container: this.el,
+			licenseKey: "Z709-X9711G-1S0132-293E23",
 		});
 		this.props.handleMount(this.webdatarocks);
 	}
-
-	// shouldComponentUpdate() {
-	// 	return false;
-	// }
 
 	componentWillUnmount() {
 		this.webdatarocks.dispose();
