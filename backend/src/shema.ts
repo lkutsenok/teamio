@@ -5,6 +5,8 @@ import {UserTC} from "./models/User";
 import {HoursPerAssigneeTC} from "./shemaTypes/hoursPerAssignee";
 import {HoursPerAssigneeChartTC} from "./shemaTypes/hoursPerAssigneeChart";
 import {LoginTC} from "./shemaTypes/login";
+import {ResourcePlanTC} from "./models/ResourcePlan";
+import {ComponentTC} from "./models/Component";
 
 const authMiddleware = async (resolve, source, args, context, info) => {
     try {
@@ -20,6 +22,8 @@ const authMiddleware = async (resolve, source, args, context, info) => {
 
 schemaComposer.Query.addFields({
     issues: IssueTC.getResolver('findMany'),
+    components: ComponentTC.getResolver('findMany'),
+    resourcePlan: ResourcePlanTC.getResolver('findMany'),
     hoursPerAssignee: HoursPerAssigneeTC.getResolver('get'),
     hoursPerAssigneeChart: HoursPerAssigneeChartTC.getResolver('get'),
 });

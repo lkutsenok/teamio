@@ -2,6 +2,19 @@
 
 schema {
     query: Query
+    mutation: Mutation
+}
+
+type Component {
+    _id: MongoID!
+    name: String
+    projectComponents: [ComponentProjectComponents]
+}
+
+type ComponentProjectComponents {
+    _id: MongoID
+    componentId: Float
+    projectRef: MongoID
 }
 
 type HoursPerAssignee {
@@ -24,12 +37,12 @@ type Issue {
     _id: MongoID!
     assignee: String
     category: String
-    component: String
+    componentRef: MongoID
     created: Date
     dueDate: Date
     epic: String
     key: String
-    project: String
+    projectRef: MongoID
     resolutionDate: Date
     status: String
     subIssues: [IssueSubIssues]
@@ -49,21 +62,85 @@ type IssueSubIssues {
     timeSpent: Float
 }
 
+type LoginData {
+    accessToken: String
+}
+
+type Mutation {
+    login(password: String!, username: String!): LoginData
+}
+
 type Query {
-    hoursPerAssignee(dateEnd: Date = "2020-03-06T21:00:00.000Z", dateStart: Date = "2020-02-06T21:00:00.000Z"): [HoursPerAssignee]
-    hoursPerAssigneeChart(dateEnd: Date = "2020-03-06T21:00:00.000Z", dateStart: Date = "2020-02-06T21:00:00.000Z"): HoursPerAssigneeChart
+    components(
+        "Filter by fields"
+        filter: FilterFindManyComponentInput,
+        limit: Int = 1000,
+        skip: Int,
+        sort: SortFindManyComponentInput
+    ): [Component]
+    hoursPerAssignee(dateEnd: Date = "2020-05-05T21:00:00.000Z", dateStart: Date = "2020-04-05T21:00:00.000Z"): [HoursPerAssignee]
+    hoursPerAssigneeChart(dateEnd: Date = "2020-05-05T21:00:00.000Z", dateStart: Date = "2020-04-05T21:00:00.000Z"): HoursPerAssigneeChart
     issues(
-        #Filter by fields
+        "Filter by fields"
         filter: FilterFindManyIssueInput,
         limit: Int = 1000,
         skip: Int,
         sort: SortFindManyIssueInput
     ): [Issue]
+    resourcePlan(
+        "Filter by fields"
+        filter: FilterFindManyResourcePlanInput,
+        limit: Int = 1000,
+        skip: Int,
+        sort: SortFindManyResourcePlanInput
+    ): [ResourcePlan]
+}
+
+type ResourcePlan {
+    _id: MongoID!
+    items: [ResourcePlanItems]
+    period: Date
+    version: Float
+}
+
+type ResourcePlanItems {
+    _id: MongoID
+    assignee: String
+    component: Component
+    componentRef: MongoID
+    hours: Float
+}
+
+enum SortFindManyComponentInput {
+    _ID_ASC
+    _ID_DESC
 }
 
 enum SortFindManyIssueInput {
     _ID_ASC
     _ID_DESC
+}
+
+enum SortFindManyResourcePlanInput {
+    _ID_ASC
+    _ID_DESC
+}
+
+input ComponentProjectComponentsInput {
+    _id: MongoID
+    componentId: Float
+    projectRef: MongoID
+}
+
+input FilterFindManyComponentInput {
+    AND: [FilterFindManyComponentInput!]
+    OR: [FilterFindManyComponentInput!]
+    _id: MongoID
+    _ids: [MongoID]
+    "List of *indexed* fields that can be filtered via operators."
+    _operators: OperatorsFilterFindManyComponentInput
+    name: String
+    projectComponents: [ComponentProjectComponentsInput]
 }
 
 input FilterFindManyIssueInput {
@@ -75,17 +152,29 @@ input FilterFindManyIssueInput {
     _operators: OperatorsFilterFindManyIssueInput
     assignee: String
     category: String
-    component: String
+    componentRef: MongoID
     created: Date
     dueDate: Date
     epic: String
     key: String
-    project: String
+    projectRef: MongoID
     resolutionDate: Date
     status: String
     subIssues: [IssueSubIssuesInput]
     timeOriginalEstimate: Float
     timeSpent: Float
+}
+
+input FilterFindManyResourcePlanInput {
+    AND: [FilterFindManyResourcePlanInput!]
+    OR: [FilterFindManyResourcePlanInput!]
+    _id: MongoID
+    _ids: [MongoID]
+    "List of *indexed* fields that can be filtered via operators."
+    _operators: OperatorsFilterFindManyResourcePlanInput
+    items: [ResourcePlanItemsInput]
+    period: Date
+    version: Float
 }
 
 input IssueSubIssuesInput {
@@ -101,11 +190,48 @@ input IssueSubIssuesInput {
 }
 
 "For performance reason this type contains only *indexed* fields."
+input OperatorsFilterFindManyComponentInput {
+    _id: _idOperatorsFilterFindManyComponentInput
+}
+
+"For performance reason this type contains only *indexed* fields."
 input OperatorsFilterFindManyIssueInput {
     _id: _idOperatorsFilterFindManyIssueInput
 }
 
+"For performance reason this type contains only *indexed* fields."
+input OperatorsFilterFindManyResourcePlanInput {
+    _id: _idOperatorsFilterFindManyResourcePlanInput
+}
+
+input ResourcePlanItemsInput {
+    _id: MongoID
+    assignee: String
+    componentRef: MongoID
+    hours: Float
+}
+
+input _idOperatorsFilterFindManyComponentInput {
+    gt: MongoID
+    gte: MongoID
+    in: [MongoID]
+    lt: MongoID
+    lte: MongoID
+    ne: MongoID
+    nin: [MongoID]
+}
+
 input _idOperatorsFilterFindManyIssueInput {
+    gt: MongoID
+    gte: MongoID
+    in: [MongoID]
+    lt: MongoID
+    lte: MongoID
+    ne: MongoID
+    nin: [MongoID]
+}
+
+input _idOperatorsFilterFindManyResourcePlanInput {
     gt: MongoID
     gte: MongoID
     in: [MongoID]

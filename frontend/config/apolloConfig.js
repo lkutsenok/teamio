@@ -22,7 +22,16 @@ const client = new ApolloClient({
             uri: API_URL,
         })
     ]),
-    cache: new InMemoryCache()
+    cache: new InMemoryCache(),
+    resolvers: {
+        ResourcePlanItems: {
+            componentName: resourcePlanItem => resourcePlanItem.component?.name || "Unknown"
+        },
+        ResourcePlan: {
+            components: resourcePlan => resourcePlan.items.map(item => item.componentRef),
+            assignees: resourcePlan => resourcePlan.items.map(item => item.assignee)
+        }
+    }
 });
 
 export {client}

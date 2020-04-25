@@ -1,4 +1,4 @@
-.fm-ui-element.fm-ui.fm-noselect {
+.fm-ui-element.fm-ui.fm-noselect:not(.fm-ui-container) {
     display: none !important;
 }
 
