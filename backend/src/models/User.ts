@@ -4,7 +4,16 @@ import bcrypt from 'bcryptjs';
 
 class User {
     @prop()
-    username?: string;
+    name?: string;
+
+    @prop()
+    key?: string;
+
+    @prop()
+    email?: string;
+
+    @prop()
+    displayName?: string;
 
     @prop()
     password?: string;
@@ -21,7 +30,5 @@ class User {
 
 const UserModel = getModelForClass(User);
 const UserTC = composeWithMongoose(UserModel, {});
-
-// User.createUser("test", "test");
 
 export {User, UserModel, UserTC};

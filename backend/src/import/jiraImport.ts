@@ -1,14 +1,31 @@
 import _ from 'lodash';
 import {ImportInterface} from "./import";
 import {_Issue, Issue, IssueModel, SubIssue} from "../models/Issue";
+import {User, UserModel} from "../models/User";
 import {jira} from "../jiraConfig";
 import {Project, ProjectModel} from "../models/Project";
 import {Component, ComponentModel, ProjectComponent} from "../models/Component";
 import {Types} from "mongoose";
+import {prop} from "@typegoose/typegoose";
 
 const MAX_RESULTS = 1000;
 
 export class JiraImport implements ImportInterface {
+
+    static async getUsers() {
+        const users = await jira.user.search({username: 'robotbull.com'})
+        let _users: User[] = []
+        for (const user of users) {
+            _users.push({
+                name: user.name,
+                key: user.key,
+                email: user.emailAddress,
+                displayName: user.displayName,
+            })
+        }
+        await UserModel.deleteMany({});
+        await UserModel.insertMany(_users);
+    }
 
     static async getProjects() {
         const projects = await jira.project.getProject({})
