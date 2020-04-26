@@ -30,10 +30,10 @@ export async function hoursPerAssignee(dateStart: Date, dateEnd: Date): Promise<
                                 ]
                             },
                             then: '$subIssues.timeOriginalEstimate',
-                            'else': '$timeOriginalEstimate'
+                            else: '$timeOriginalEstimate'
                         }
                     },
-                    assignee: {
+                    assigneeRef: {
                         $cond: {
                             'if': {
                                 $ifNull: [
@@ -41,8 +41,8 @@ export async function hoursPerAssignee(dateStart: Date, dateEnd: Date): Promise<
                                     false
                                 ]
                             },
-                            then: '$subIssues.assignee',
-                            'else': '$assignee'
+                            then: '$subIssues.assigneeRef',
+                            else: '$assigneeRef'
                         }
                     },
                     resolutionDate: {
@@ -54,16 +54,25 @@ export async function hoursPerAssignee(dateStart: Date, dateEnd: Date): Promise<
                                 ]
                             },
                             then: '$subIssues.resolutionDate',
-                            'else': '$resolutionDate'
+                            else: '$resolutionDate'
                         }
                     }
+                }
+            }, {
+                $lookup: {
+                    from: 'users',
+                    localField: 'assigneeRef',
+                    foreignField: '_id',
+                    as: 'assignee'
                 }
             }, {
                 $project: {
                     _id: 1,
                     key: 1,
                     component: 1,
-                    assignee: 1,
+                    assignee: {
+                        $arrayElemAt: ["$assignee", 0]
+                    },
                     timeOriginalEstimate: {
                         $divide: [
                             '$timeOriginalEstimate',
@@ -87,7 +96,7 @@ export async function hoursPerAssignee(dateStart: Date, dateEnd: Date): Promise<
                 $group: {
                     _id: {
                         component: '$component.name',
-                        assignee: '$assignee'
+                        assignee: '$assignee.displayName'
                     },
                     total: {
                         $sum: '$timeOriginalEstimate'

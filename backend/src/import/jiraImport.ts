@@ -13,7 +13,7 @@ const MAX_RESULTS = 1000;
 export class JiraImport implements ImportInterface {
 
     static async getUsers() {
-        const users = await jira.user.search({username: 'robotbull.com'})
+        const users = await jira.user.search({username: 'robotbull.com', includeInactive: true})
         let _users: User[] = []
         for (const user of users) {
             _users.push({
@@ -21,6 +21,7 @@ export class JiraImport implements ImportInterface {
                 key: user.key,
                 email: user.emailAddress,
                 displayName: user.displayName,
+                isActive: user.active,
             })
         }
         await UserModel.deleteMany({});
@@ -95,7 +96,7 @@ export class JiraImport implements ImportInterface {
                 key: key,
                 description: fields.description,
                 project: Number(fields.project.id),
-                assignee: fields.assignee && fields.assignee.name,
+                assignee: fields.assignee && fields.assignee.key,
                 status: fields.status && fields.status.name,
                 created: fields.created,
                 updated: fields.updated,
@@ -123,8 +124,18 @@ export class JiraImport implements ImportInterface {
             subIssues.push(...resSubIssues);
 
         }
-        subIssues.forEach((subIssue: SubIssue) => issues[subIssue.parent!].subIssues!.push(subIssue));
+        for (const subIssue of subIssues) {
+            if (subIssue.assignee) {
+                const assignee = await UserModel.findOne({key: subIssue.assignee})
+                subIssue.assigneeRef = assignee?._id
+            }
+            issues[subIssue.parent!].subIssues!.push(subIssue)
+        }
         for (const issue of Object.values(issues)) {
+            if (issue.assignee) {
+                const assignee = await UserModel.findOne({key: issue.assignee})
+                issue.assigneeRef = assignee?._id
+            }
             const project = await ProjectModel.findOne({projectId: issue.project})
             issue.projectRef = project?.id
             switch (project?.name) {

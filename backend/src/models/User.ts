@@ -18,6 +18,9 @@ class User {
     @prop()
     password?: string;
 
+    @prop()
+    isActive?: boolean
+
     static async createUser(username: string, password: string) {
         const encryptedPassword = bcrypt.hashSync(password, 8);
         return await new UserModel({username, password: encryptedPassword}).save()

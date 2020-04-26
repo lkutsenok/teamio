@@ -33,7 +33,7 @@ export async function hoursPerAssigneeChart(dateStart: Date, dateEnd: Date): Pro
                             'else': '$timeOriginalEstimate'
                         }
                     },
-                    assignee: {
+                    assigneeRef: {
                         $cond: {
                             'if': {
                                 $ifNull: [
@@ -41,8 +41,8 @@ export async function hoursPerAssigneeChart(dateStart: Date, dateEnd: Date): Pro
                                     false
                                 ]
                             },
-                            then: '$subIssues.assignee',
-                            'else': '$assignee'
+                            then: '$subIssues.assigneeRef',
+                            'else': '$assigneeRef'
                         }
                     },
                     resolutionDate: {
@@ -59,11 +59,20 @@ export async function hoursPerAssigneeChart(dateStart: Date, dateEnd: Date): Pro
                     }
                 }
             }, {
+                $lookup: {
+                    from: 'users',
+                    localField: 'assigneeRef',
+                    foreignField: '_id',
+                    as: 'assignee'
+                }
+            }, {
                 $project: {
                     _id: 1,
                     key: 1,
                     component: 1,
-                    assignee: 1,
+                    assignee: {
+                        $arrayElemAt: ["$assignee", 0]
+                    },
                     timeOriginalEstimate: {
                         $divide: [
                             '$timeOriginalEstimate',
@@ -87,7 +96,7 @@ export async function hoursPerAssigneeChart(dateStart: Date, dateEnd: Date): Pro
                 $group: {
                     _id: {
                         component: '$component.name',
-                        assignee: '$assignee'
+                        assignee: '$assignee.displayName'
                     },
                     total: {
                         $sum: '$timeOriginalEstimate'
