@@ -12,9 +12,13 @@ const Pivot = dynamic(() => import('../components/webDataRocks/Pivot'), {ssr: fa
 export default function Resource() {
     const pivotRef = useRef(null)
     const [pivotData, setPivotData] = useState([])
+    const [selectedComponents, setSelectedComponents] = useState([])
+    const [selectedAssignees, setSelectedAssignees] = useState([])
     const {error, loading, data} = useQuery(GET_RESOURCE_PLAN);
     useEffect(() => {
         setPivotData(data?.resourcePlan[0]?.items || [])
+        setSelectedComponents(data?.resourcePlan[0]?.components || [])
+        setSelectedAssignees(data?.resourcePlan[0]?.assignees || [])
     }, [data])
     useEffect(() => {
         pivotRef.current?.updateData({data: pivotData})
@@ -23,22 +27,52 @@ export default function Resource() {
         return data ? data.components.map(data => (
             <Select.Option key={data._id}>{data.name}</Select.Option>)) : []
     }, [data]);
+    const userOptions = useMemo(() => {
+        return data ? data.users.map(data => (
+            <Select.Option key={data._id}>{data.displayName}</Select.Option>)) : []
+    }, [data]);
     const onDataChanged = () => {
         if (pivotRef) {
             console.log(pivotRef.current.getReport());
         }
     }
     const onComponentAdd = componentRef => {
-        //TODO: для каждого юзера
-        setPivotData([...pivotData, {
-            assignee: 'l.kutsenok',
-            hours: 0,
-            componentRef,
-            componentName: data.components.find(e => e._id === componentRef)?.name
-        }])
+        setSelectedComponents([...selectedComponents, componentRef])
+        let dataToAdd = []
+        const componentName = data.components.find(e => e._id === componentRef)?.name
+        for (const assigneeRef of selectedAssignees) {
+            dataToAdd.push({
+                assigneeRef,
+                assigneeName: data.users.find(e => e._id === assigneeRef)?.displayName,
+                hours: 0,
+                componentRef,
+                componentName,
+            })
+        }
+        setPivotData([...pivotData, ...dataToAdd])
     }
-    const onComponentRemove = composeRef => {
-        setPivotData([...pivotData.filter(d => d.componentRef !== composeRef)])
+    const onComponentRemove = componentRef => {
+        setSelectedComponents([...selectedComponents.filter(d => d !== componentRef)])
+        setPivotData([...pivotData.filter(d => d.componentRef !== componentRef)])
+    }
+    const onAssigneeAdd = assigneeRef => {
+        setSelectedAssignees([...selectedAssignees, assigneeRef])
+        let dataToAdd = []
+        const assigneeName = data.users.find(e => e._id === assigneeRef)?.displayName;
+        for (const componentRef of selectedComponents) {
+            dataToAdd.push({
+                assigneeRef,
+                assigneeName,
+                hours: 0,
+                componentRef,
+                componentName: data.components.find(e => e._id === componentRef)?.name
+            })
+        }
+        setPivotData([...pivotData, ...dataToAdd])
+    }
+    const onAssigneeRemove = assigneeRef => {
+        setSelectedAssignees([...selectedAssignees.filter(d => d !== assigneeRef)])
+        setPivotData([...pivotData.filter(d => d.assigneeRef !== assigneeRef)])
     }
     return (
         <Layout>
@@ -51,19 +85,32 @@ export default function Resource() {
                               initialValues={{size: 'middle'}}
                               size={'middle'}>
                             <Row gutter={24}>
-                                <Col span={6}>
+                                <Col span={5}>
                                     <Form.Item label="Период">
                                         <DatePicker.MonthPicker/>
                                     </Form.Item>
                                 </Col>
-                                <Col span={8}>
+                                <Col span={5}>
                                     <Form.Item label="Заказчики">
                                         <Select mode="multiple"
                                                 style={{minWidth: 200}}
+                                                value={selectedComponents}
                                                 onSelect={onComponentAdd}
                                                 onDeselect={onComponentRemove}
                                                 maxTagCount={0}>
                                             {componentsOptions}
+                                        </Select>
+                                    </Form.Item>
+                                </Col>
+                                <Col span={5}>
+                                    <Form.Item label="Сотрудники">
+                                        <Select mode="multiple"
+                                                style={{minWidth: 200}}
+                                                value={selectedAssignees}
+                                                onSelect={onAssigneeAdd}
+                                                onDeselect={onAssigneeRemove}
+                                                maxTagCount={0}>
+                                            {userOptions}
                                         </Select>
                                     </Form.Item>
                                 </Col>
@@ -75,12 +122,12 @@ export default function Resource() {
                     <Pivot handleMount={(obj) => pivotRef.current = obj} toolbar={false} width="100%"
                            datachanged={onDataChanged}
                            report={{
-                               dataSource: {data: pivotData},
+                               dataSource: {data: []},
                                options: {
                                    editing: true,
                                },
                                slice: {
-                                   rows: [{uniqueName: "assignee", caption: "Исполнитель"}],
+                                   rows: [{uniqueName: "assigneeName", caption: "Исполнитель"}],
                                    columns: [{uniqueName: "componentName", caption: "Заказчик"}],
                                    measures: [
                                        {

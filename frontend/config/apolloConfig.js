@@ -25,11 +25,12 @@ const client = new ApolloClient({
     cache: new InMemoryCache(),
     resolvers: {
         ResourcePlanItems: {
-            componentName: resourcePlanItem => resourcePlanItem.component?.name || "Unknown"
+            componentName: resourcePlanItem => resourcePlanItem.component?.name || "Unknown",
+            assigneeName: resourcePlanItem => resourcePlanItem.assignee.displayName
         },
         ResourcePlan: {
             components: resourcePlan => resourcePlan.items.map(item => item.componentRef),
-            assignees: resourcePlan => resourcePlan.items.map(item => item.assignee)
+            assignees: resourcePlan => resourcePlan.items.map(item => item.assigneeRef)
         }
     }
 });

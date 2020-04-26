@@ -23,6 +23,7 @@ const authMiddleware = async (resolve, source, args, context, info) => {
 schemaComposer.Query.addFields({
     issues: IssueTC.getResolver('findMany'),
     components: ComponentTC.getResolver('findMany'),
+    users: UserTC.getResolver('findMany'),
     resourcePlan: ResourcePlanTC.getResolver('findMany'),
     hoursPerAssignee: HoursPerAssigneeTC.getResolver('get'),
     hoursPerAssigneeChart: HoursPerAssigneeChartTC.getResolver('get'),

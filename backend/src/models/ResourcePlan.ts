@@ -3,10 +3,11 @@ import {prop, getModelForClass, arrayProp, Ref} from '@typegoose/typegoose';
 import {Component, ComponentTC} from "./Component";
 import {Types} from "mongoose";
 import {GraphQLString} from "graphql";
+import {User, UserTC} from "./User";
 
 class ResourcePlanItem {
-    @prop()
-    assignee?: string
+    @prop({ref: User})
+    assigneeRef?: Ref<User>
 
     @prop({ref: Component})
     componentRef?: Ref<Component>
@@ -41,14 +42,22 @@ ResourcePlanItemTC.addRelation(
         projection: {componentRef: 1}
     }
 );
+ResourcePlanItemTC.addRelation(
+    'assignee',
+    {
+        resolver: () => UserTC.getResolver('findById'),
+        prepareArgs: {_id: (source) => source.assigneeRef},
+        projection: {assigneeRef: 1}
+    }
+);
 
 // setTimeout(() => {
 //     new ResourcePlanModel({
 //         period: new Date(),
 //         version: 1,
 //         items: [{
-//             assignee: "l.kutsenok",
-//             componentRef: Types.ObjectId('5ea34bc4b643ce3e0c9a80dc'),
+//             assigneeRef: Types.ObjectId('5ea5d2e97acaa849aa9c709b'),
+//             componentRef: Types.ObjectId('5ea5d2e87acaa849aa9c7057'),
 //             hours: 10
 //         }]
 //     }).save()

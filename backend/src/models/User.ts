@@ -34,4 +34,6 @@ class User {
 const UserModel = getModelForClass(User);
 const UserTC = composeWithMongoose(UserModel, {});
 
+UserTC.removeField('password')
+
 export {User, UserModel, UserTC};

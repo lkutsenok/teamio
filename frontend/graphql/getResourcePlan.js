@@ -8,7 +8,9 @@ export const GET_RESOURCE_PLAN = gql`
             period
             items {
                 _id
-                assignee
+                assignee {displayName}
+                assigneeRef
+                assigneeName @client
                 hours
                 component {name}
                 componentRef
@@ -20,6 +22,10 @@ export const GET_RESOURCE_PLAN = gql`
         components {
             _id
             name
+        }
+        users(filter: {isActive: true}) {
+            _id
+            displayName
         }
     }
 `;
