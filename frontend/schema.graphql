@@ -17,6 +17,13 @@ type ComponentProjectComponents {
     projectRef: MongoID
 }
 
+type CreateOneResourcePlanPayload {
+    "Created document"
+    record: ResourcePlan
+    "Created document ID"
+    recordId: MongoID
+}
+
 type HoursPerAssignee {
     assignee: String
     component: String
@@ -67,7 +74,11 @@ type LoginData {
 }
 
 type Mutation {
+    "Create one document with mongoose defaults, setters, hooks and validation"
+    createResourcePlan(record: CreateOneResourcePlanInput!): CreateOneResourcePlanPayload
     login(password: String!, username: String!): LoginData
+    "Update one document: 1) Retrieve one document by findById. 2) Apply updates to mongoose document. 3) Mongoose applies defaults, setters, hooks and validation. 4) And save it."
+    updateResourcePlan(record: UpdateByIdResourcePlanInput!): UpdateByIdResourcePlanPayload
 }
 
 type Query {
@@ -119,6 +130,13 @@ type ResourcePlanItems {
     hours: Float
 }
 
+type UpdateByIdResourcePlanPayload {
+    "Updated document"
+    record: ResourcePlan
+    "Updated document ID"
+    recordId: MongoID
+}
+
 type User {
     _id: MongoID!
     displayName: String
@@ -126,6 +144,7 @@ type User {
     isActive: Boolean
     key: String
     name: String
+    role: String
 }
 
 enum SortFindManyComponentInput {
@@ -152,6 +171,12 @@ input ComponentProjectComponentsInput {
     _id: MongoID
     componentId: Float
     projectRef: MongoID
+}
+
+input CreateOneResourcePlanInput {
+    items: [ResourcePlanItemsInput]
+    period: Date
+    version: Float
 }
 
 input FilterFindManyComponentInput {
@@ -212,6 +237,7 @@ input FilterFindManyUserInput {
     key: String
     name: String
     password: String
+    role: String
 }
 
 input IssueSubIssuesInput {
@@ -251,6 +277,13 @@ input ResourcePlanItemsInput {
     assigneeRef: MongoID
     componentRef: MongoID
     hours: Float
+}
+
+input UpdateByIdResourcePlanInput {
+    _id: MongoID!
+    items: [ResourcePlanItemsInput]
+    period: Date
+    version: Float
 }
 
 input _idOperatorsFilterFindManyComponentInput {

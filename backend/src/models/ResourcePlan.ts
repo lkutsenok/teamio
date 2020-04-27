@@ -51,14 +51,14 @@ ResourcePlanItemTC.addRelation(
     }
 );
 
-// setTimeout(() => {
-//     new ResourcePlanModel({
-//         period: new Date(),
-//         version: 1,
-//         items: [{
-//             assigneeRef: Types.ObjectId('5ea5d2e97acaa849aa9c709b'),
-//             componentRef: Types.ObjectId('5ea5d2e87acaa849aa9c7057'),
-//             hours: 10
-//         }]
-//     }).save()
-// }, 1000)
+setTimeout(() => {
+    new ResourcePlanModel({
+        period: new Date(),
+        version: 1,
+        items: [{
+            assigneeRef: Types.ObjectId('5ea5d2e97acaa849aa9c709b'),
+            componentRef: Types.ObjectId('5ea5d2e87acaa849aa9c7057'),
+            hours: 10
+        }]
+    }).save()
+}, 1000)

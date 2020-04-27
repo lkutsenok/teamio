@@ -31,6 +31,8 @@ schemaComposer.Query.addFields({
 
 schemaComposer.Mutation.addFields({
     login: LoginTC.getResolver('login'),
+    createResourcePlan: ResourcePlanTC.getResolver('createOne'),
+    updateResourcePlan: ResourcePlanTC.getResolver('updateById')
 });
 
 const graphqlSchema = schemaComposer.buildSchema();

@@ -4,6 +4,7 @@ import {HttpLink} from 'apollo-link-http';
 import {onError} from 'apollo-link-error';
 import {ApolloLink} from 'apollo-link';
 import fetch from "node-fetch";
+import _ from 'lodash'
 import {API_URL} from "./config";
 
 const client = new ApolloClient({
@@ -26,11 +27,12 @@ const client = new ApolloClient({
     resolvers: {
         ResourcePlanItems: {
             componentName: resourcePlanItem => resourcePlanItem.component?.name || "Unknown",
-            assigneeName: resourcePlanItem => resourcePlanItem.assignee.displayName
+            assigneeName: resourcePlanItem => resourcePlanItem.assignee.displayName,
+            assigneeRole: resourcePlanItem => resourcePlanItem.assignee.role || "Нет направления",
         },
         ResourcePlan: {
-            components: resourcePlan => resourcePlan.items.map(item => item.componentRef),
-            assignees: resourcePlan => resourcePlan.items.map(item => item.assigneeRef)
+            components: resourcePlan => _.uniq(resourcePlan.items.map(item => item.componentRef)),
+            assignees: resourcePlan => _.uniq(resourcePlan.items.map(item => item.assigneeRef))
         }
     }
 });
