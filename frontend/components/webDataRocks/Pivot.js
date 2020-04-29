@@ -14,10 +14,11 @@ export class Pivot extends React.Component {
 
 	componentWillUnmount() {
 		this.webdatarocks.dispose();
+		delete this.webdatarocks
 	}
 
 	render() {
-		return <div ref={el => this.el = el}/>;
+		return <div style={this.props.style} ref={el => this.el = el}/>;
 	}
 }
 
