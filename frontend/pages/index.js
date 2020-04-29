@@ -2,8 +2,6 @@ import React, {useState, useMemo, useRef} from 'react'
 import {Card, Row, Col, DatePicker, Input, Form, Button} from "antd";
 import moment from 'moment';
 import dynamic from 'next/dynamic';
-// import PivotTableUI from 'react-pivottable/PivotTableUI';
-// import {aggregators} from 'react-pivottable/Utilities';
 import {Bar} from 'react-chartjs-2';
 import {useQuery} from "@apollo/react-hooks";
 import {getStartOfCurrentMonth} from "../helpers/monthHelper";
@@ -15,7 +13,6 @@ import {BAR_COLORS} from "../config/chartColors";
 const Pivot = dynamic(() => import('../components/webDataRocks/Pivot'), {ssr: false});
 
 export default function Index() {
-    const [_data, setData] = useState({});
     const [dateRange, setDateRange] = useState({dateStart: getStartOfCurrentMonth(), dateEnd: moment()});
     const {error, loading, data, refetch, networkStatus} = useQuery(GET_HOURS_PER_ASSIGNEE, {
         notifyOnNetworkStatusChange: true
@@ -23,13 +20,7 @@ export default function Index() {
     const datasets = useMemo(() => {
         return data ? data.hoursPerAssigneeChart.hours.map((data, i) => ({...data, ...BAR_COLORS[i]})) : []
     }, [data]);
-    const [webDataRocks, setWebDataRocks] = useState(null);
-    const onReportComplete = () => {
-        if (webDataRocks) {
-            webDataRocks.off("reportcomplete");
-            console.log(webDataRocks);
-        }
-    };
+    const webDataRocks = useRef(null)
     return (
         <Layout>
             {!error && (networkStatus === 2 || !loading) &&
@@ -53,7 +44,9 @@ export default function Index() {
                                                             format={"DD.MM.YYYY"}/>
                                 </Form.Item>
                                 <Button type="primary" block
-                                        onClick={() => refetch(dateRange).then((data) => webDataRocks.updateData({data: data.data.hoursPerAssignee}))}>
+                                        onClick={() => refetch(dateRange).then((data) => {
+                                            webDataRocks.current.updateData({data: data.data.hoursPerAssignee})
+                                        })}>
                                     Сохранить</Button>
                             </Form>
                         </Card>
@@ -78,7 +71,7 @@ export default function Index() {
                     </Col>
                 </Row>
                 <Card title={"Распределение трудозатрат по заказчикам"} size="small">
-                    <Pivot handleMount={setWebDataRocks} toolbar={false} width="100%" reportcomplete={onReportComplete}
+                    <Pivot handleMount={(obj) => webDataRocks.current = obj} toolbar={false} width="100%"
                            report={{
                                dataSource: {data: data.hoursPerAssignee},
                                slice: {
@@ -97,17 +90,6 @@ export default function Index() {
                                }],
                            }}/>
 
-                    {/*<PivotTableUI*/}
-                    {/*    rows={['assignee']}*/}
-                    {/*    cols={['component']}*/}
-                    {/*    vals={['hours']}*/}
-                    {/*    hiddenAttributes={['hours', '__typename']}*/}
-                    {/*    aggregatorName="Sum"*/}
-                    {/*    aggregators={{Sum: aggregators.Sum}}*/}
-                    {/*    data={data.hoursPerAssignee}*/}
-                    {/*    onChange={s => setData(s)}*/}
-                    {/*    {..._data}*/}
-                    {/*/>*/}
                 </Card>
             </>
             }

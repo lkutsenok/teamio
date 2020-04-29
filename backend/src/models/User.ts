@@ -4,10 +4,25 @@ import bcrypt from 'bcryptjs';
 
 class User {
     @prop()
-    username?: string;
+    name?: string;
+
+    @prop()
+    key?: string;
+
+    @prop()
+    email?: string;
+
+    @prop()
+    displayName?: string;
 
     @prop()
     password?: string;
+
+    @prop()
+    isActive?: boolean
+
+    @prop()
+    role?: string
 
     static async createUser(username: string, password: string) {
         const encryptedPassword = bcrypt.hashSync(password, 8);
@@ -22,6 +37,6 @@ class User {
 const UserModel = getModelForClass(User);
 const UserTC = composeWithMongoose(UserModel, {});
 
-// User.createUser("test", "test");
+UserTC.removeField('password')
 
 export {User, UserModel, UserTC};

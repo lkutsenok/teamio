@@ -1,21 +1,39 @@
 import _ from 'lodash';
 import {ImportInterface} from "./import";
 import {_Issue, Issue, IssueModel, SubIssue} from "../models/Issue";
+import {User, UserModel} from "../models/User";
 import {jira} from "../jiraConfig";
 import {Project, ProjectModel} from "../models/Project";
 import {Component, ComponentModel, ProjectComponent} from "../models/Component";
 import {Types} from "mongoose";
+import {prop} from "@typegoose/typegoose";
 
 const MAX_RESULTS = 1000;
 
 export class JiraImport implements ImportInterface {
+
+    static async getUsers() {
+        const users = await jira.user.search({username: 'robotbull.com', includeInactive: true})
+        let _users: User[] = []
+        for (const user of users) {
+            _users.push({
+                name: user.name,
+                key: user.key,
+                email: user.emailAddress,
+                displayName: user.displayName,
+                isActive: user.active,
+            })
+        }
+        await UserModel.deleteMany({});
+        await UserModel.insertMany(_users);
+    }
 
     static async getProjects() {
         const projects = await jira.project.getProject({})
         let _projects: Project[] = []
         let _components: Component[] = []
         let components = [];
-        for(const project of projects) {
+        for (const project of projects) {
             _projects.push({
                 projectId: project.id,
                 key: project.key,
@@ -26,16 +44,16 @@ export class JiraImport implements ImportInterface {
         await ProjectModel.deleteMany({})
         await ProjectModel.insertMany(_projects)
         components = _.groupBy(components, 'name')
-        for(const component in components) {
+        for (const component in components) {
             const d: ProjectComponent[] = components[component]
             const projectRefs: Types.ObjectId[] = []
-            for(const projectComponent of d) {
+            for (const projectComponent of d) {
                 const project = await ProjectModel.findOne({projectId: projectComponent.projectId})
                 projectRefs.push(project?._id)
             }
             _components.push({
                 name: component,
-                projectComponents: d.map((t,i) => ({componentId: t.id, projectRef: projectRefs[i]}))
+                projectComponents: d.map((t, i) => ({componentId: t.id, projectRef: projectRefs[i]}))
             })
         }
         await ComponentModel.deleteMany({})
@@ -77,13 +95,13 @@ export class JiraImport implements ImportInterface {
                 id: id,
                 key: key,
                 description: fields.description,
-                project: fields.project.name,
-                assignee: fields.assignee && fields.assignee.name,
+                project: Number(fields.project.id),
+                assignee: fields.assignee && fields.assignee.key,
                 status: fields.status && fields.status.name,
                 created: fields.created,
                 updated: fields.updated,
                 dueDate: fields.duedate,
-                component: fields.components.length && fields.components[0].name,
+                component: fields.components.length && Number(fields.components[0].id),
                 resolutionDate: fields.resolutiondate,
                 epic: fields.customfield_10101,
                 // epicId: fields
@@ -106,26 +124,40 @@ export class JiraImport implements ImportInterface {
             subIssues.push(...resSubIssues);
 
         }
-        subIssues.forEach((subIssue: SubIssue) => issues[subIssue.parent!].subIssues!.push(subIssue));
-        Object.values(issues).forEach((issue: Issue) => {
-            //TODO: это должно быть динамично через связи
-            switch (issue.project!) {
+        for (const subIssue of subIssues) {
+            if (subIssue.assignee) {
+                const assignee = await UserModel.findOne({key: subIssue.assignee})
+                subIssue.assigneeRef = assignee?._id
+            }
+            issues[subIssue.parent!].subIssues!.push(subIssue)
+        }
+        for (const issue of Object.values(issues)) {
+            if (issue.assignee) {
+                const assignee = await UserModel.findOne({key: issue.assignee})
+                issue.assigneeRef = assignee?._id
+            }
+            const project = await ProjectModel.findOne({projectId: issue.project})
+            issue.projectRef = project?.id
+            switch (project?.name) {
                 case("MedRavel") :
-                    issue.component = "MedRavel";
+                    issue.componentRef = (await ComponentModel.findOne({name: "MedRavel"}))?.id;
                     break;
                 case("PlanSharing") :
-                    issue.component = "PlanSharing";
+                    issue.componentRef = (await ComponentModel.findOne({name: "PlanSharing"}))?.id;
                     break;
                 case("PaxPeer") :
-                    issue.component = "PaxPeer";
+                    issue.componentRef = (await ComponentModel.findOne({name: "PaxPeer"}))?.id;
                     break;
                 case("Huse Lock") :
-                    issue.component = "HuseLock";
+                    issue.componentRef = (await ComponentModel.findOne({name: "HuseLock"}))?.id;
                     break;
                 default:
-                    issue.component = issue.component || (issue.epic && issues[issue.epic] && issues[issue.epic].component) || "Unknown";
+                    issue.component = issue.component || (issue.epic && issues[issue.epic] && issues[issue.epic].component) || 0;
+                    if (issue.component !== 0) {
+                        issue.componentRef = (await ComponentModel.findOne({'projectComponents.componentId': issue.component}))?.id
+                    }
             }
-        });
+        }
         let issuesArray: Issue[] = Object.values(issues);
         IssueModel.deleteMany({}).exec();
         if (issuesArray.length) await IssueModel.insertMany(issuesArray);

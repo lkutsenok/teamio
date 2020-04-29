@@ -1,5 +1,8 @@
 import {composeWithMongoose} from 'graphql-compose-mongoose/node8';
-import {prop, getModelForClass, arrayProp} from '@typegoose/typegoose';
+import {prop, getModelForClass, arrayProp, Ref} from '@typegoose/typegoose';
+import {Project} from "./Project";
+import {Component} from "./Component";
+import {User} from "./User";
 
 class _Issue {
     @prop()
@@ -14,8 +17,11 @@ class _Issue {
     @prop()
     resolutionDate?: Date;
 
-    @prop()
     assignee?: string;
+
+    @prop({ref: User})
+    assigneeRef?: Ref<User>
+
 
     @prop()
     timeSpent?: Number;
@@ -28,20 +34,23 @@ class _Issue {
 }
 
 class SubIssue extends _Issue {
-    parent?: string; //не @prop, только для сохранения
+    parent?: string;
 }
 
 
 class Issue extends _Issue {
 
+    project?: Number
+    component?: Number
+
     @arrayProp({items: SubIssue})
     subIssues?: SubIssue[];
 
-    @prop()
-    component?: string;
+    @prop({ref: Project})
+    componentRef?: Ref<Component>
 
-    @prop()
-    project?: string;
+    @prop({ref: Project})
+    projectRef?: Ref<Project>
 
     @prop()
     epic?: string;

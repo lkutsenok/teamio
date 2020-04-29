@@ -5,6 +5,8 @@ import {UserTC} from "./models/User";
 import {HoursPerAssigneeTC} from "./shemaTypes/hoursPerAssignee";
 import {HoursPerAssigneeChartTC} from "./shemaTypes/hoursPerAssigneeChart";
 import {LoginTC} from "./shemaTypes/login";
+import {ResourcePlanTC} from "./models/ResourcePlan";
+import {ComponentTC} from "./models/Component";
 
 const authMiddleware = async (resolve, source, args, context, info) => {
     try {
@@ -20,12 +22,17 @@ const authMiddleware = async (resolve, source, args, context, info) => {
 
 schemaComposer.Query.addFields({
     issues: IssueTC.getResolver('findMany'),
+    components: ComponentTC.getResolver('findMany'),
+    users: UserTC.getResolver('findMany'),
+    resourcePlan: ResourcePlanTC.getResolver('findMany'),
     hoursPerAssignee: HoursPerAssigneeTC.getResolver('get'),
     hoursPerAssigneeChart: HoursPerAssigneeChartTC.getResolver('get'),
 });
 
 schemaComposer.Mutation.addFields({
     login: LoginTC.getResolver('login'),
+    createResourcePlan: ResourcePlanTC.getResolver('createOne'),
+    updateResourcePlan: ResourcePlanTC.getResolver('updateById')
 });
 
 const graphqlSchema = schemaComposer.buildSchema();

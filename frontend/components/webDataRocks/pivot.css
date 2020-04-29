@@ -1,0 +1,7 @@
+.fm-ui-element.fm-ui.fm-noselect:not(.fm-ui-container) {
+    display: none !important;
+}
+
+#fm-branding-bar {
+    display: none !important;
+}
