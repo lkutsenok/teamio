@@ -10,7 +10,7 @@ db.once('open', async () => {
     console.log("🍀️Connected to MongoDB");
     // await JiraImport.getProjects()
     // await JiraImport.getUsers()
-    // await JiraImport.execFullImport()
+    // await JiraImport. execFullImport()
 });
 
 schedule.scheduleJob('05 15 1-31/2 * *', async () => {
