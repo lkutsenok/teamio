@@ -1,4 +1,4 @@
-FROM node:buster-slim
+FROM registry.gitlab.robotbull.com/robotbull/teamio/base/backend:latest as build
 ARG ARG_JIRA_LOGIN
 ARG ARG_JIRA_PASSWORD
 ARG ARG_JIRA_URL
@@ -14,9 +14,5 @@ ENV MONGODB_URL=${ARG_MONGODB_URL}
 ENV MONTH_START_DAY=${ARG_MONTH_START_DAY}
 ENV SLACK_WEBHOOK_URL=${ARG_SLACK_WEBHOOK_URL}
 ENV SENTRY_DSN=${ARG_SENTRY_DSN}
-WORKDIR /usr/app
-COPY package.json .
-COPY yarn.lock .
-RUN yarn install
 COPY . .
 CMD ["yarn", "run", "serve"]

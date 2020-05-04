@@ -1,8 +1,4 @@
-FROM node:buster-slim
-WORKDIR /usr/app
-COPY package.json .
-COPY yarn.lock .
-RUN yarn install
+FROM registry.gitlab.robotbull.com/robotbull/teamio/base/frontend:latest as build
 COPY . .
 RUN yarn build
 CMD ["yarn", "run", "next", "start"]

@@ -1,4 +1,6 @@
 variables:
+    IMAGE_TAG_BASE_BACKEND: $CI_REGISTRY_IMAGE/base/backend:latest
+    IMAGE_TAG_BASE_FRONTEND: $CI_REGISTRY_IMAGE/base/frontend:latest
     IMAGE_TAG_BACKEND: $CI_REGISTRY_IMAGE/backend:$CI_PIPELINE_ID
     IMAGE_TAG_FRONTEND: $CI_REGISTRY_IMAGE/frontend:$CI_PIPELINE_ID
 
@@ -6,27 +8,65 @@ before_script:
     - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $REGISTRY_URL
     - PATH=$PATH:/snap/bin
 stages:
+    - install_dependencies
     - build
     - push
     - deploy
-build_prod:
+install_dependencies_backend:
+    stage: install_dependencies
+    script:
+        - cd backend && docker build -t $IMAGE_TAG_BASE_BACKEND -f Dockerfile.base .
+        - docker push $IMAGE_TAG_BASE_BACKEND
+    only:
+        refs:
+            - master
+        changes:
+            - backend/package.json
+            - backend/yarn.lock
+install_dependencies_frontend:
+    stage: install_dependencies
+    script:
+        - cd frontend && docker build -t $IMAGE_TAG_BASE_FRONTEND -f Dockerfile.base .
+        - docker push $IMAGE_TAG_BASE_FRONTEND
+    only:
+        refs:
+            - master
+        changes:
+            - frontend/package.json
+            - frontend/yarn.lock
+build_back_prod:
     stage: build
     script:
         - cd backend && docker build --build-arg ARG_JIRA_LOGIN=$JIRA_LOGIN --build-arg ARG_JIRA_URL=$JIRA_URL --build-arg ARG_JIRA_PASSWORD=$JIRA_PASSWORD --build-arg ARG_JIRA_URL=$JIRA_URL --build-arg ARG_SLACK_WEBHOOK_URL=$SLACK_WEBHOOK_URL --build-arg ARG_MONGODB_URL=$MONGODB_URL --build-arg ARG_MONTH_START_DAY=$MONTH_START_DAY --build-arg ARG_SENTRY_DSN=$SENTRY_DSN -t $IMAGE_TAG_BACKEND .
-        - cd ../frontend && export API_URL=$API_URL && export MONTH_START_DAY=$MONTH_START_DAY && python ci.py && docker build -t $IMAGE_TAG_FRONTEND .
     only:
         - master
-push_prod:
+build_front_prod:
+    stage: build
+    script:
+        - cd frontend && export API_URL=$API_URL && export MONTH_START_DAY=$MONTH_START_DAY && python ci.py && docker build -t $IMAGE_TAG_FRONTEND .
+    only:
+        - master
+push_back_prod:
     stage: push
     script:
         - docker push $IMAGE_TAG_BACKEND
+    only:
+        - master
+push_front_prod:
+    stage: push
+    script:
         - docker push $IMAGE_TAG_FRONTEND
     only:
         - master
-deploy_prod:
+deploy_back_prod:
     stage: deploy
     script:
         - kubectl set image deployment.v1.apps/$DEPLOYMENT_NAME_BACKEND $DEPLOYMENT_NAME_BACKEND=$IMAGE_TAG_BACKEND --namespace=$CLUSTER_NAMESPACE
+    only:
+        - master
+deploy_front_prod:
+    stage: deploy
+    script:
         - kubectl set image deployment.v1.apps/$DEPLOYMENT_NAME_FRONTEND $DEPLOYMENT_NAME_FRONTEND=$IMAGE_TAG_FRONTEND --namespace=$CLUSTER_NAMESPACE
     only:
         - master
