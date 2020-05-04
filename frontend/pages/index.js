@@ -13,7 +13,7 @@ import {BAR_COLORS} from "../config/chartColors";
 const Pivot = dynamic(() => import('../components/webDataRocks/Pivot'), {ssr: false});
 
 export default function Index() {
-    const [dateRange, setDateRange] = useState({dateStart: getStartOfCurrentMonth(), dateEnd: moment()});
+    const [dateRange, setDateRange] = useState({dateStart: getStartOfCurrentMonth(), dateEnd: moment().endOf('day')});
     const {error, loading, data, refetch, networkStatus} = useQuery(GET_HOURS_PER_ASSIGNEE, {
         notifyOnNetworkStatusChange: true
     });

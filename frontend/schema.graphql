@@ -5,6 +5,12 @@ schema {
     mutation: Mutation
 }
 
+type BurndownChart {
+    estimate: [Float]
+    labels: [String]
+    real: [Float]
+}
+
 type Component {
     _id: MongoID!
     name: String
@@ -82,6 +88,7 @@ type Mutation {
 }
 
 type Query {
+    burndownChart(period: Date = "2020-04-05T21:00:00.000Z"): BurndownChart
     components(
         "Filter by fields"
         filter: FilterFindManyComponentInput,

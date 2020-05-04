@@ -7,6 +7,7 @@ import {HoursPerAssigneeChartTC} from "./shemaTypes/hoursPerAssigneeChart";
 import {LoginTC} from "./shemaTypes/login";
 import {ResourcePlanTC} from "./models/ResourcePlan";
 import {ComponentTC} from "./models/Component";
+import {BurndownChartTC} from "./shemaTypes/burndownChart";
 
 const authMiddleware = async (resolve, source, args, context, info) => {
     try {
@@ -27,6 +28,7 @@ schemaComposer.Query.addFields({
     resourcePlan: ResourcePlanTC.getResolver('findMany'),
     hoursPerAssignee: HoursPerAssigneeTC.getResolver('get'),
     hoursPerAssigneeChart: HoursPerAssigneeChartTC.getResolver('get'),
+    burndownChart: BurndownChartTC.getResolver('get'),
 });
 
 schemaComposer.Mutation.addFields({
