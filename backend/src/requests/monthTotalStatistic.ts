@@ -5,17 +5,25 @@ import {MONTH_START_DAY} from "../config";
 
 export default function monthTotalStatistic(component: String | undefined): Promise<number> {
     return new Promise<number>((resolve, reject) => {
-        IssueModel.aggregate([
-            {
+        IssueModel.aggregate(
+            [{
                 $unwind: {
                     path: "$subIssues",
                     preserveNullAndEmptyArrays: true
                 }
-            },
-            {
+            }, {
+                $lookup: {
+                    from: 'components',
+                    localField: 'componentRef',
+                    foreignField: '_id',
+                    as: 'component'
+                }
+            }, {
                 $project: {
                     key: 1,
-                    component: 1,
+                    component: {
+                        $arrayElemAt: ["$component", 0]
+                    },
                     timeOriginalEstimate: {
                         $cond: {
                             if: {
@@ -30,8 +38,8 @@ export default function monthTotalStatistic(component: String | undefined): Prom
                             if: {
                                 $ifNull: ['$subIssues', false]
                             },
-                            then: "$subIssues.assignee",
-                            else: "$assignee"
+                            then: "$subIssues.assigneeRef",
+                            else: "$assigneeRef"
                         }
                     },
                     resolutionDate: {
@@ -43,22 +51,19 @@ export default function monthTotalStatistic(component: String | undefined): Prom
                             else: "$resolutionDate"
                         }
                     },
-
                 }
-            },
-            {
+            }, {
                 $project: {
                     _id: 1,
                     key: 1,
-                    component: 1,
+                    component: "$component.name",
                     assignee: 1,
                     timeOriginalEstimate: {
                         $divide: ["$timeOriginalEstimate", 3600]
                     },
                     resolutionDate: 1
                 }
-            },
-            {
+            }, {
                 $match: {
                     resolutionDate: {
                         $gte: getStartOfCurrentMonth().toDate(),
@@ -70,16 +75,15 @@ export default function monthTotalStatistic(component: String | undefined): Prom
                     },
                     ...(() => component ? {component: {$eq: component}} : {})()
                 }
-            },
-            {
+            }, {
                 $group: {
                     _id: 1,
                     total: {
                         $sum: "$timeOriginalEstimate"
                     }
+
                 }
-            }
-        ]).exec().then(res => {
+            }]).exec().then(res => {
             resolve(res[0] ? res[0].total : 0.0)
         }).catch(e => reject(e));
     });

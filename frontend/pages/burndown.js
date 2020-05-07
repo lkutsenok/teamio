@@ -14,7 +14,7 @@ const Pivot = dynamic(() => import('../components/webDataRocks/Pivot'), {ssr: fa
 
 export default function Index() {
     const {error, loading, data, refetch, networkStatus} = useQuery(GET_BURNDOWN_CHART, {
-        variables: {period: "2020-04-01"},
+        variables: {period: "2020-05-01"},
         notifyOnNetworkStatusChange: true
     });
     const datasets = useMemo(() => {
@@ -29,7 +29,6 @@ export default function Index() {
             {data: data.burndownChart.real, label: "Фактический", backgroundColor: '#5899DA', borderColor: '#5899DA',fill: false}
         ] : []
     }, [data]);
-    console.log(data)
     return (
         <Layout>
             {!error && (networkStatus === 2 || !loading) &&
