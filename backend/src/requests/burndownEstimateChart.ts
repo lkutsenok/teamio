@@ -1,11 +1,10 @@
 import {ResourcePlanModel} from "../models/ResourcePlan";
 import moment from "moment";
-import {MONTH_START_DAY} from "../config";
 
 export async function burndownEstimateChart(period: Date): Promise<any> {
     const _period: Date = moment(period).utc().toDate()
-    const monthStart: Date = moment(period).utc().add(MONTH_START_DAY - 1, 'days').toDate();
-    const monthEnd: Date = moment(period).utc().add(1, 'month').startOf('month').add(MONTH_START_DAY - 1, 'days').toDate();
+    const monthStart: Date = moment(period).utc().toDate();
+    const monthEnd: Date = moment(period).utc().add(1, 'month').startOf('month').toDate();
     return new Promise((resolve, reject) => {
         ResourcePlanModel.aggregate(
             [{
