@@ -294,3 +294,7 @@ export default function Resource() {
         </Layout>
     )
 }
+
+export const getServerSideProps = async (context) => {
+    return {props: {}}
+}

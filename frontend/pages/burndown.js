@@ -79,3 +79,7 @@ export default function Index() {
         </Layout>
     )
 }
+
+export const getServerSideProps = async (context) => {
+    return {props: {}}
+}
