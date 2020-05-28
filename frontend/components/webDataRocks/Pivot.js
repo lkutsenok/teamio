@@ -7,7 +7,7 @@ export class Pivot extends React.Component {
 		this.webdatarocks = new Flexmonster({
 			...this.props,
 			container: this.el,
-			licenseKey: "Z709-X9711G-1S0132-293E23",
+			licenseKey: "Z7GC-XBDJ43-65471O-1X144W",
 		});
 		this.props.handleMount(this.webdatarocks);
 	}
