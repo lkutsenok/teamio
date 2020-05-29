@@ -89,7 +89,6 @@ export default function Index() {
                                    decimalPlaces: 0,
                                }],
                            }}/>
-
                 </Card>
             </>
             }

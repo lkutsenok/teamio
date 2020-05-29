@@ -32,7 +32,7 @@ export default function Layout_(props) {
                 </Menu>
             </Sider>
             <Layout style={{marginLeft: collapsed ? 80 : 200, minHeight: "100vh"}}>
-                <Header style={{background: '#fff', padding: 0}}/>
+                {/*<Header style={{background: '#fff', padding: 0}}/>*/}
                 <Content style={{margin: '24px 16px 0', overflow: 'initial'}}>
                     {props.children}
                 </Content>
