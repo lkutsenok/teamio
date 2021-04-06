@@ -7415,9 +7415,9 @@ symbol-observable@^1.0.2:
   integrity sha512-e900nM8RRtGhlV36KGEU9k65K3mPb1WV70OdjfxlG2EAuM1noi/E/BaW/uMhL7bPEssK8QV57vN3esixjUvcXQ==
 
 systeminformation@^4.14.16:
-  version "4.22.4"
-  resolved "https://registry.yarnpkg.com/systeminformation/-/systeminformation-4.22.4.tgz#143a0b903578061f688b93ab33c4a4e693c9eb7f"
-  integrity sha512-PrJud7+rVT2pRc7eVdFvUUZ8YRsWjb+YZNzXHD00aErapsryFxLSIW4K7a6QyZkjhMgzVUyoEGCJ7wi+9e4siw==
+  version "4.34.19"
+  resolved "https://registry.yarnpkg.com/systeminformation/-/systeminformation-4.34.19.tgz#c5f066cc043482686d95bbc554d52e6ec9e42367"
+  integrity sha512-ssUYQ0s1FFeb8EGtyCX/41cC/XaF84gbNAUfaUTziibx+xCAaR0zrOy0yZlnUrsWDQ+snp/Utl8cx8IdtrevrA==
 
 tapable@^1.0.0, tapable@^1.1.3:
   version "1.1.3"
