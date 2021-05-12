@@ -16,7 +16,7 @@
     "apollo-link": "^1.2.13",
     "apollo-link-error": "^1.1.12",
     "apollo-link-http": "^1.5.16",
-    "chart.js": "^2.9.3",
+    "chart.js": "^2.9.4",
     "flexmonster": "^2.8.7",
     "graphql": "^14.6.0",
     "graphql-tag": "^2.10.3",
